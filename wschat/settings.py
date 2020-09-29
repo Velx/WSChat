@@ -74,7 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'wschat.wsgi.application'
-ASGI_APPLICATION = 'wscgat.routing.application'
+ASGI_APPLICATION = 'wschat.routing.application'
 
 
 # Database

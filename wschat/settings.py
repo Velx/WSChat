@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # libs
+    'channels',
 
     # apps
     'chat'
@@ -73,6 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'wschat.wsgi.application'
+ASGI_APPLICATION = 'wscgat.routing.application'
 
 
 # Database

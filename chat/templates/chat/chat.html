@@ -16,12 +16,18 @@
         let arrayMessages = [];
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            if (data.type === 'next') {
-                arrayMessages.push(...data.message);
-                arrayMessages.splice(0, arrayMessages.length - 20);
-            } else {
-                arrayMessages.unshift(...data.message);
-                arrayMessages.splice(20);
+            if (data.message.length > 0) {
+                if (data.type === 'next') {
+                    if (data.message.length + arrayMessages.length <= 20) {
+                        arrayMessages = data.message
+                    } else {
+                        arrayMessages.push(...data.message);
+                        arrayMessages.splice(0, arrayMessages.length - 20);
+                    }
+                } else {
+                    arrayMessages.unshift(...data.message);
+                    arrayMessages.splice(20);
+                }
             }
             let messageString = '';
             arrayMessages.forEach((item) => {

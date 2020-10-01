@@ -30,3 +30,8 @@ def login(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+
+def chat(request):
+    return render(request, 'chat/chat.html', {})
+

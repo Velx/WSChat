@@ -1,0 +1,66 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Room</title>
+</head>
+<body>
+    <textarea class="chat" cols="100" rows="20" readonly></textarea><br>
+    <input class="message-input" type="text" size="100"  maxlength="200"><br>
+    <input class="message-submit" type="button" value="Send">
+    <input class="postponed-date" type="datetime-local" value="2020-06-12T19:30">
+    <input class="postponed-checkbox" type="checkbox" value="postponed">
+    <input class="back" type='button' value="<">
+    <input class="next" type='button' value=">">
+    <script>
+        const socket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+        let arrayMessages = [];
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            if (data.type === 'next') {
+                arrayMessages.push(...data.message);
+                arrayMessages.splice(0, arrayMessages.length - 20);
+            } else {
+                arrayMessages.unshift(...data.message);
+                arrayMessages.splice(20);
+            }
+            let messageString = '';
+            arrayMessages.forEach((item) => {
+                if (item.message)
+                    messageString += `${item.user__username ? item.user__username : 'Anonymous'}(${item.datetime}): ${item.message} \n`
+            });
+            document.querySelector('.chat').value = messageString;
+        };
+        document.querySelector('.message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {
+                document.querySelector('.message-submit').click();
+            }
+        };
+        document.querySelector('.message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('.message-input');
+            const message = messageInputDom.value;
+            socket.send(JSON.stringify({
+                'message': message,
+                'date': document.querySelector('.postponed-checkbox').checked ? document.querySelector('.postponed-date').value : null
+            }));
+            messageInputDom.value = '';
+        };
+        document.querySelector('.back').onclick = function(e) {
+            socket.send(JSON.stringify({
+                'event': {
+                    'type': 'back',
+                    'id': arrayMessages[0]['id']
+                }
+            }));
+        };
+        document.querySelector('.next').onclick = function(e) {
+            socket.send(JSON.stringify({
+                'event': {
+                    'type': 'next',
+                    'id': arrayMessages[arrayMessages.length - 1]['id']
+                }
+            }));
+        };
+    </script>
+
+</body>
+</html>

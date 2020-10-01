@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  db:
+    container_name: db
+    image: postgres
+    hostname: db
+    ports:
+      - 5432:5432
+    env_file:
+      - ./.env
+    networks:
+      - wschat
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    hostname: redis
+    ports:
+      - 6379:6379
+    networks:
+      - wschat
+
+  server:
+    container_name: server
+    hostname: server
+    ports:
+      - 8000:8000
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/srv/project
+    env_file:
+      - ./.env
+    command: >
+      bash -c '
+      python manage.py makemigrations chat &&
+      python manage.py migrate &&
+      daphne -b 0.0.0.0 -p 8000 wschat.asgi:application'
+    depends_on:
+      - db
+      - redis
+    networks:
+      - wschat
+
+networks:
+  wschat:
+    driver: bridge
